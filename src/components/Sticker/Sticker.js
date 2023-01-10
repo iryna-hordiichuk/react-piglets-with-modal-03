@@ -1,38 +1,22 @@
-import { CardWrapper, Image, Label } from './Sticker.styled.js';
-import Modal from 'react-modal';
 import { Component } from 'react';
-
-const modalStyles = {
-  content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-  },
-};
-
-Modal.setAppElement('#root');
+import { CardWrapper, Image, Label, Actions } from './Sticker.styled.js';
+import { EditStickerModal } from 'components/EditStickerModal/EditStickerModal.js';
+import { ImageModal } from 'components/ImageModal/ImageModal.js';
+import { DeleteStickerModal } from 'components/DeleteStickerModal/DeleteStickerModal.js';
+import { FavStickerModal } from 'components/FavStickerModal/FavStickerModal.js';
 
 export class Sticker extends Component {
   state = {
-    isModalOpen: false,
+    openedModal: null,
   };
 
-  // openModal = () => {
-  //   this.setState({ isModalOpen: true });
-  // };
+  openModal = type => {
+    this.setState({ openedModal: type });
+    // указіваем какой тип модалки нужно откріть
+  };
 
-  // closeModal = () => {
-  //   this.setState({ isModalOpen: false });
-  // };
-
-  //! так как не возможно откріть модалку два раза подряд(нельзя дважді записать тру),
-  // вместо двух методов можно сделать один -  тогл исп инверсию от предідущего состояния;
-
-  toggleModal = () => {
-    this.setState(prevState => ({ isModalOpen: !prevState.isModalOpen }));
+  closeModal = () => {
+    this.setState({ openedModal: null });
   };
 
   render() {
@@ -40,27 +24,73 @@ export class Sticker extends Component {
       sticker: { img, label },
     } = this.props;
 
-    const { isModalOpen } = this.state;
+    const { openedModal } = this.state;
 
     return (
       <>
         <CardWrapper>
-          <Image src={img} alt={label} onClick={this.toggleModal} />
+          <Image
+            src={img}
+            alt={label}
+            onClick={() => this.openModal('image')}
+          />
+          {/* click on image to open/close modal which shows larger picture */}
           <Label>{label}</Label>
-          <button onClick={() => onDelete(id)}>Delete piglet</button>
+          <Actions>
+            <button onClick={() => this.openModal('edit')}>Edit</button>
+            <button onClick={() => this.openModal('fav')}>Fav</button>
+            <button onClick={() => this.openModal('delete')}>Delete</button>
+          </Actions>
         </CardWrapper>
 
-        <Modal
-          isOpen={isModalOpen}
-          // click on backdrop
-          onRequestClose={this.toggleModal}
-          style={modalStyles}
-        >
-          <button onClick={this.toggleModal}>Close</button>
-          <div>Image modal</div>
-          <img src={img} alt="a piglet" />
-        </Modal>
+        <ImageModal
+          isOpen={openedModal === 'image'}
+          img={img}
+          onClose={this.closeModal}
+        />
+
+        <EditStickerModal
+          isOpen={openedModal === 'edit'}
+          onClose={this.closeModal}
+        />
+
+        <FavStickerModal
+          isOpen={openedModal === 'fav'}
+          onClose={this.closeModal}
+        />
+
+        <DeleteStickerModal
+          isOpen={openedModal === 'delete'}
+          onClose={this.closeModal}
+        />
       </>
     );
   }
 }
+
+//! создали много одинаковіх методов для управления модальнім окном поотдельности,
+// єто повторяющийся код, будем использовать ПЕРЕЧИСЛЕНИЕ и в стейте
+// вместо отдельного свойства для каждого вида-типа модалки,
+// будем хранить одно свойство - куда ПРИ ОТКРИТИИ модалки будем записивать в стейт строку (строку с названием)
+// взависимости какая модалка задействована юзером.
+// А если ничего нету - буду записивать туда null.
+
+// toggleEditImageModal = () => {
+//   this.setState(prevState => ({
+//     isEditModalOpen: !prevState.isEditModalOpen,
+//   }));
+// };
+// toggleFavImageModal = () => {
+//   this.setState(prevState => ({ isFavModalOpen: !prevState.isFavModalOpen }));
+// };
+// toggleDeleteImageModal = () => {
+//   this.setState(prevState => ({
+//     isDeleteModalOpen: !prevState.isDeleteModalOpen,
+//   }));
+// };
+
+// toggleImageModal = () => {
+//   this.setState(prevState => ({
+//     isImageModalOpen: !prevState.isImageModalOpen,
+//   }));
+// };
