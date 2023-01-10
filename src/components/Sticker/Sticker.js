@@ -23,6 +23,7 @@ export class Sticker extends Component {
     const {
       sticker: { img, label },
     } = this.props;
+//стікери додаємо через пропси, деструктуризуючи обєкт пропсів
 
     const { openedModal } = this.state;
 
