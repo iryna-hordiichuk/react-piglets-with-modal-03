@@ -11,6 +11,7 @@ const modalStyles = {
   },
 };
 
+
 Modal.setAppElement('#root');
 
 export const DeleteStickerModal = ({ isOpen, onClose }) => {
